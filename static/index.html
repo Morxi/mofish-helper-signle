@@ -126,20 +126,19 @@
 
                 // 计算总时间
                 const totalTime = chartData.reduce((sum, item) => sum + parseFloat(item.value), 0);
-                
-                // 处理饼图数据，合并小于10%的项目
-                const pieThreshold = 0.1; // 10%阈值
+                // 处理饼图数据，显示前6个应用，其余归入"其他"
+                const TOP_N = 3;
                 let othersValue = 0;
-                const pieData = chartData.reduce((acc, item) => {
-                    const percentage = parseFloat(item.value) / totalTime;
-                    if (percentage >= pieThreshold) {
-                        acc.push(item);
-                    } else {
-                        othersValue += parseFloat(item.value);
-                    }
-                    return acc;
-                }, []);
-                
+                const pieData = chartData
+                    .sort((a, b) => parseFloat(b.value) - parseFloat(a.value))
+                    .reduce((acc, item, index) => {
+                        if (index < TOP_N) {
+                            acc.push(item);
+                        } else {
+                            othersValue += parseFloat(item.value);
+                        }
+                        return acc;
+                    }, []);
                 // 如果有小于阈值的项目，添加"其他"类别
                 if (othersValue > 0) {
                     pieData.push({
@@ -228,8 +227,11 @@
                     
                     const appHeader = document.createElement('div');
                     appHeader.className = 'app-header collapsed';
+                    const totalTimeSeconds = Math.floor(app.total_time_minutes * 60);
+                    const minutes = Math.floor(totalTimeSeconds / 60);
+                    const seconds = totalTimeSeconds % 60;
                     const headerText = document.createElement('span');
-                    headerText.textContent = `${app.process_name} (总计: ${app.total_time_minutes.toFixed(2)}分钟)`;
+                    headerText.textContent = `${app.process_name} (总计: ${minutes}分 ${seconds}秒)`;
                     appHeader.appendChild(headerText);
                     
                     const windowList = document.createElement('div');
@@ -248,7 +250,10 @@
                         
                         const windowTime = document.createElement('div');
                         windowTime.className = 'window-time';
-                        windowTime.textContent = `${window.total_time_minutes.toFixed(2)}分钟`;
+                        const totalTimeSeconds = Math.floor(window.total_time_minutes * 60);
+                        const minutes = Math.floor(totalTimeSeconds / 60);
+                        const seconds = totalTimeSeconds % 60;
+                        windowTime.textContent = `${minutes}分 ${seconds}秒`;
                         
                         windowItem.appendChild(windowTitle);
                         windowItem.appendChild(windowTime);

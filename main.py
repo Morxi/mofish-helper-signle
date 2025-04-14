@@ -28,31 +28,74 @@ def run_data_collection():
     cursor = conn.cursor()
     
     try:
+        records_to_write = []
+        last_window_title = None
+        last_process_name = None
+        last_write_time = time.time()
+        
         while True:
             # Get window information
             window_title = watcher.get_active_window_title()
             process_info = watcher.get_process_info()
-            
-            # Prepare data
+            process_name = process_info.get('name')
             current_time = datetime.now().isoformat()
             
-            # Insert into database
-            cursor.execute('''
-                INSERT INTO window_history 
-                (timestamp, window_title, process_name, process_path, command_line)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (
-                current_time,
-                window_title,
-                process_info.get('name'),
-                process_info.get('exe'),
-                str(process_info.get('cmdline'))
-            ))
-            conn.commit()
+            # If window/process changed, add new record
+            if window_title != last_window_title or process_name != last_process_name:
+                records_to_write.append({
+                    'timestamp': current_time,
+                    'window_title': window_title,
+                    'process_name': process_name,
+                    'process_path': process_info.get('exe'),
+                    'command_line': str(process_info.get('cmdline'))
+                })
+                last_window_title = window_title
+                last_process_name = process_name
             
-            # Wait for 5 seconds
-            time.sleep(5)
+            # Write to DB every 10 seconds
+            if time.time() - last_write_time >= 10 and records_to_write:
+                # Get the last record from DB to check for duplicates
+                cursor.execute('''
+                    SELECT window_title, process_name, timestamp 
+                    FROM window_history 
+                    ORDER BY id DESC LIMIT 1
+                ''')
+                last_db_record = cursor.fetchone()
+                
+                for record in records_to_write:
+                    if last_db_record and \
+                       last_db_record[0] == record['window_title'] and \
+                       last_db_record[1] == record['process_name']:
+                        # Update timestamp of existing record
+                        cursor.execute('''
+                            UPDATE window_history 
+                            SET timestamp = ?
+                            WHERE rowid IN (
+                                SELECT rowid FROM window_history
+                                WHERE window_title = ? AND process_name = ?
+                                ORDER BY rowid DESC LIMIT 1
+                            )
+                        ''', (record['timestamp'], record['window_title'], record['process_name']))
+                    else:
+                        # Insert new record
+                        cursor.execute('''
+                            INSERT INTO window_history 
+                            (timestamp, window_title, process_name, process_path, command_line)
+                            VALUES (?, ?, ?, ?, ?)
+                        ''', (
+                            record['timestamp'],
+                            record['window_title'],
+                            record['process_name'],
+                            record['process_path'],
+                            record['command_line']
+                        ))
+                
+                conn.commit()
+                records_to_write = []
+                last_write_time = time.time()
             
+            # Check every 1 second
+            time.sleep(1)
     except KeyboardInterrupt:
         print("\nData collection has been stopped")
     finally:

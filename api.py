@@ -95,7 +95,7 @@ def get_screentime():
     Parameters:
     - hours: Records from how many hours ago (default 1 hour)
     """
-    hours = request.args.get('hours', default=1, type=int)
+    hours = request.args.get('hours', default=12, type=int)
     
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -137,37 +137,38 @@ def get_screentime():
     # 处理时间序列数据
     # Process time series data
     total_time = 0
-    for i in range(len(rows) - 1):
-        current = rows[i]
-        next_record = rows[i + 1]
+    previous_record = None
+    
+    for current in rows:
+        if previous_record is not None:
+            # Skip processing if the current record is the same as the previous one
+            if (current['process_name'] == previous_record['process_name'] and
+                current['window_title'] == previous_record['window_title']):
+                continue
         
-        # 计算两条记录之间的时间差（秒）
-        # Calculate the time difference between two records (seconds)
+        # 计算时间差（秒）
         current_time = datetime.fromisoformat(current['timestamp'])
-        next_time = datetime.fromisoformat(next_record['timestamp'])
-        time_diff = (next_time - current_time).total_seconds()
         
-        # 限制单条记录的最大时间差为30分钟
-        # Limit the maximum time difference for a single record to 30 minutes
-        if time_diff > 1800:  # 30分钟 = 1800秒
-            time_diff = 1800
-            
+        if previous_record is not None:
+            next_time = datetime.fromisoformat(previous_record['timestamp'])
+            time_diff = (current_time - next_time).total_seconds()
+        else:
+            time_diff = 0  # No time difference for the first record
+        
+        # 更新应用程序级别的统计
         process_name = current['process_name']
         window_title = current['window_title']
         
-        # 更新应用程序级别的统计
-        # Update application-level statistics
         apps_data[process_name]['total_time_seconds'] += time_diff
         apps_data[process_name]['process_name'] = process_name
         apps_data[process_name]['process_path'] = current['process_path']
         
         # 更新窗口级别的统计
-        # Update window-level statistics
         apps_data[process_name]['windows'][window_title]['total_time_seconds'] += time_diff
         apps_data[process_name]['windows'][window_title]['window_title'] = window_title
         
         total_time += time_diff
-    
+        previous_record = current  # Update previous_record to current
     # 转换数据结构为列表格式
     # Convert data structure to list format
     apps_list = []
