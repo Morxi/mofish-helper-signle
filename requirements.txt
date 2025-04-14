@@ -1,0 +1,4 @@
+flask==3.0.2
+pywin32==306
+psutil==5.9.8 
+schedule==1.2.2

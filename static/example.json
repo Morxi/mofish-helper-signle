@@ -1,0 +1,81 @@
+{
+    "apps": [
+      {
+        "process_name": "msedge.exe",
+        "process_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "total_time_minutes": 1.75,
+        "total_time_seconds": 105.19,
+        "windows": [
+          {
+            "total_time_minutes": 1,
+            "total_time_seconds": 60.1,
+            "window_title": "localhost:5030/api/screentime and 20 more pages - Personal - Microsoft​ Edge"
+          },
+          {
+            "total_time_minutes": 0.33,
+            "total_time_seconds": 20.05,
+            "window_title": "sonic/README_ZH_CN.md at main · bytedance/sonic and 19 more pages - Personal - Microsoft​ Edge"
+          },
+          {
+            "total_time_minutes": 0.17,
+            "total_time_seconds": 10.02,
+            "window_title": "kchanqvq/Typo: A portable type inference library for Common Lisp and 19 more pages - Personal - Microsoft​ Edge"
+          },
+          {
+            "total_time_minutes": 0.08,
+            "total_time_seconds": 5.01,
+            "window_title": "500 Internal Server Error and 20 more pages - Personal - Microsoft​ Edge"
+          },
+          {
+            "total_time_minutes": 0.08,
+            "total_time_seconds": 5.01,
+            "window_title": "GitHub and 19 more pages - Personal - Microsoft​ Edge"
+          },
+          {
+            "total_time_minutes": 0.08,
+            "total_time_seconds": 5.01,
+            "window_title": "Open WebUI and 19 more pages - Personal - Microsoft​ Edge"
+          }
+        ]
+      },
+      {
+        "process_name": "explorer.exe",
+        "process_path": "C:\\Windows\\explorer.exe",
+        "total_time_minutes": 0.5,
+        "total_time_seconds": 30.06,
+        "windows": [
+          {
+            "total_time_minutes": 0.25,
+            "total_time_seconds": 15.03,
+            "window_title": ""
+          },
+          {
+            "total_time_minutes": 0.17,
+            "total_time_seconds": 10.02,
+            "window_title": "mofish-helper-dev"
+          },
+          {
+            "total_time_minutes": 0.08,
+            "total_time_seconds": 5.01,
+            "window_title": "Downloads"
+          }
+        ]
+      },
+      {
+        "process_name": "Taskmgr.exe",
+        "process_path": "C:\\Windows\\System32\\Taskmgr.exe",
+        "total_time_minutes": 0.08,
+        "total_time_seconds": 5.01,
+        "windows": [
+          {
+            "total_time_minutes": 0.08,
+            "total_time_seconds": 5.01,
+            "window_title": "Task Manager"
+          }
+        ]
+      }
+    ],
+    "hours_range": 1,
+    "total_time_minutes": 4.51,
+    "total_time_seconds": 270.46
+  }
